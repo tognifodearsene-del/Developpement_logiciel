@@ -1,0 +1,57 @@
+OptiStack : SaaS d'Optimisation des Licences Logicielles
+
+🚀 À propos du projet
+
+OptiStack est un mini-SaaS B2B conçu dans le cadre de notre projet fil rouge universitaire. Notre mission est d'aider les entreprises à réduire leurs coûts informatiques en analysant leur pile logicielle (stack) et en recommandant des alternatives viables, open-source ou moins onéreuses (ex: Apache Superset au lieu de Power BI).
+
+Ce projet met en pratique l'utilisation des agents IA, la gestion de projet Agile (Scrum), la modélisation UML et la gestion de versioning avancée avec Git.
+
+👥 L'équipe
+
+[Prénom 1] : Product Owner & Responsable UML
+
+[Prénom 2] : Product Manager & Scrum Master
+
+[Prénom 3] : Pilote d'Agent IA & Développeur Backend
+
+[Prénom 4] : Reviewer & Développeur Frontend / QA
+
+🎯 Problème et Proposition de Valeur
+
+Problème : Le "Software Bloat". Les entreprises paient des licences coûteuses pour des logiciels sous-utilisés alors qu'il existe des alternatives performantes. Elles manquent de temps pour faire ces benchmarks.
+
+Utilisateur principal : DSI, CTO, ou Responsable des achats IT d'une PME.
+
+Solution : Un tableau de bord interactif générant un rapport automatisé de recommandations logicielles et calculant le Retour sur Investissement (ROI) de la transition.
+
+Hors périmètre : La migration automatique des données entre les logiciels n'est pas gérée par notre outil (uniquement du conseil et de l'analyse financière).
+
+📁 Structure du dépôt
+
+├── docs/                   # Documentation (Cadrage, UML, RACI, Feuille de route)
+│   ├── analyse_et_roadmap.md
+│   └── architecture.md
+├── src/                    # Code source de l'application (à venir)
+├── .gitignore
+└── README.md
+
+
+🛠️ Stack Technique
+
+Gestion de projet : GitHub Projects, Git
+
+Modélisation : UML
+
+Assistance IA : Agents LLM intégrés pour la génération de code et le benchmark de logiciels
+
+Développement : [À compléter : Python/FastAPI, Node.js, React, etc.]
+
+📝 Livrables de la Séance 1
+
+[x] Dépôt GitHub initialisé
+
+[x] Fiche d'identité et README rédigés
+
+[x] RACI et rôles définis
+
+[x] Premier commit de groupe
