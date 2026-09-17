@@ -46,7 +46,40 @@ Assistance IA : Agents LLM intégrés pour la génération de code et le benchma
 
 Développement : [À compléter : Python/FastAPI, Node.js, React, etc.]
 
-📝 Livrables de la Séance 1
+� V1 - MVP (Version minimale viable)
+
+La V1 d’OptiStack doit permettre à un client PME de :
+- importer ou saisir son parc logiciel,
+- visualiser les coûts de licences actuels,
+- comparer les solutions avec des alternatives plus abordables,
+- obtenir un rapport de recommandations avec un calcul de ROI,
+- exporter le résultat sous format simple (CSV/PDF).
+
+Périmètre fonctionnel V1 :
+- Authentification simple en mode SaaS interne,
+- Ajout d’un inventaire logiciel via CSV ou formulaire,
+- Analyse des coûts et de l’usage logiciel,
+- Benchmark de 3 alternatives recommandées,
+- Tableau de bord avec indicateurs clés,
+- Génération d’un rapport de recommandations,
+- Export des résultats.
+
+Hors périmètre de la V1 :
+- migration automatique des données,
+- intégration SSO / IAM avancé,
+- analyse multi-entreprise complète,
+- agents IA autonomes de type orchestration avancée,
+- modules de facturation ou paie.
+
+Critères de succès V1 :
+- un utilisateur peut importer un fichier de parc logiciel en moins de 5 minutes,
+- le système propose au moins 3 recommandations exploitables,
+- le ROI est calculé et visible sur le dashboard,
+- le rapport peut être exporté et présenté à un décideur.
+
+Voir le planning détaillé dans [docs/gantt_v1.md](docs/gantt_v1.md).
+
+�📝 Livrables de la Séance 1
 
 [x] Dépôt GitHub initialisé
 
