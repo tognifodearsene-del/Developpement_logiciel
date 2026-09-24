@@ -1,0 +1,41 @@
+@startuml
+left to right direction
+
+actor "DSI / CTO / Responsable achats" as Client
+actor "Administrateur SaaS" as Admin
+
+rectangle "OptiStack (V1 - MVP)" {
+  usecase "S'authentifier" as UC_Login
+  usecase "Importer parc logiciel (CSV)" as UC_ImportCSV
+  usecase "Saisir parc logiciel (formulaire)" as UC_ManualEntry
+  usecase "Visualiser coûts et indicateurs" as UC_ViewCosts
+  usecase "Analyser & benchmarker alternatives" as UC_Analyze
+  usecase "Comparer solutions" as UC_Compare
+  usecase "Calculer ROI" as UC_ROI
+  usecase "Générer rapport de recommandations" as UC_Report
+  usecase "Exporter (CSV / PDF)" as UC_Export
+  usecase "Gérer compte utilisateur" as UC_Account
+}
+
+Client --> UC_Login
+Client --> UC_ImportCSV
+Client --> UC_ManualEntry
+Client --> UC_ViewCosts
+Client --> UC_Analyze
+Client --> UC_Report
+Client --> UC_Export
+
+UC_Analyze .> UC_Compare : includes
+UC_Compare .> UC_ROI : includes
+UC_Report .> UC_ROI : includes
+
+Admin --> UC_Account
+Admin --> UC_Analyze : "peut lancer / configurer benchmarks"
+
+note right of UC_Report
+  Hors périmètre V1 :
+  - Migration automatique de données
+  - SSO / IAM avancé
+end note
+
+@enduml
