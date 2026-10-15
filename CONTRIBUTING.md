@@ -24,4 +24,3 @@ pm install\
 - Code review requis avant merge
 
 Pour plus de détails, voir docs/
-
