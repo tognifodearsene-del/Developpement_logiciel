@@ -13,3 +13,4 @@ Analyse de notre fichier `.pre-commit-config.yaml` :
 
 ## Exercice 2 : Preuve du refus local
 *(Ajoutez ici votre capture d'écran du terminal de VS Code avec le texte en rouge montrant le blocage de trailing-whitespace)*
+![alt text](image.png)
