@@ -1,0 +1,61 @@
+name: OptiStack CI
+
+on:
+  push:
+    branches: [main, "feat/**", "feature/**", "chore/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    name: Quality Hooks (pre-commit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and run pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
+
+  backend:
+    name: Backend Tests & Coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: src/backend/requirements.txt
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+      - name: Run pytest with >70% coverage threshold
+        run: pytest tests -v --cov=app --cov-report=term-missing --cov-fail-under=70
+
+  frontend:
+    name: Frontend Format, Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Check Prettier formatting
+        run: npx prettier --check "src/**/*.{js,jsx,css}"
+      - name: Run ESLint
+        run: npm run lint
+      - name: Build production bundle
+        run: npm run build

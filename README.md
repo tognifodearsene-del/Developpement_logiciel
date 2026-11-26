@@ -23,6 +23,8 @@ Ce projet met en pratique l'utilisation des agents IA, la gestion de projet Agil
 ## 📁 Structure du dépôt
 
 ```text
+├── .github/workflows/
+│   └── ci.yml                  # CI GitHub Actions (pre-commit, pytest > 70%, lint & build)
 ├── data/                       # Jeux de données et catalogue d'alternatives
 │   ├── alternatives_seed.json
 │   └── sample_inventory.csv
