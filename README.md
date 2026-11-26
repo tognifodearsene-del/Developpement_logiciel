@@ -87,7 +87,7 @@ La V1 d'OptiStack doit permettre à un client PME de :
 
 Voir l'architecture et les spécifications dans [docs/architecture.md](docs/architecture.md), le planning détaillé dans [docs/gantt_v1.md](docs/gantt_v1.md), et les diagrammes UML dans [docs/use_cases.puml](docs/use_cases.puml), [docs/class_diagram.puml](docs/class_diagram.puml) et [docs/sequence_analysis.puml](docs/sequence_analysis.puml).
 
-## 📝 Livrables de la Séance 1
+## 📝 Livrable
 
 - [x] Dépôt GitHub initialisé
 - [x] Fiche d'identité et README rédigés
