@@ -14,10 +14,18 @@ export default function AnalysisSection({
           <div>
             <h2 className="card-title">Analyse & Calcul de ROI</h2>
             <p className="kpi-sub" style={{ margin: 0 }}>
-              Benchmark automatique des alternatives open-source ou plus économiques.
+              Benchmark automatique des alternatives open-source ou plus
+              économiques.
             </p>
           </div>
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.6rem",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             {reportsList.length > 0 && (
               <select
                 aria-label="Sélectionner un rapport"
@@ -31,7 +39,8 @@ export default function AnalysisSection({
               >
                 {reportsList.map((r) => (
                   <option key={r.id} value={r.id}>
-                    Rapport #{r.id} ({new Date(r.created_at).toLocaleDateString("fr-FR")})
+                    Rapport #{r.id} (
+                    {new Date(r.created_at).toLocaleDateString("fr-FR")})
                   </option>
                 ))}
               </select>
@@ -76,7 +85,9 @@ export default function AnalysisSection({
             <div className="kpi-grid" style={{ marginBottom: "1.25rem" }}>
               <div className="kpi-card">
                 <div className="kpi-label">Coût actuel / an</div>
-                <div className="kpi-value">{report.total_current_annual_cost.toFixed(0)} €</div>
+                <div className="kpi-value">
+                  {report.total_current_annual_cost.toFixed(0)} €
+                </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-label">Économies estimées / an</div>
@@ -86,7 +97,9 @@ export default function AnalysisSection({
               </div>
               <div className="kpi-card">
                 <div className="kpi-label">Coût de transition</div>
-                <div className="kpi-value">{report.total_migration_cost.toFixed(0)} €</div>
+                <div className="kpi-value">
+                  {report.total_migration_cost.toFixed(0)} €
+                </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-label">ROI global (12 mois)</div>
@@ -97,7 +110,9 @@ export default function AnalysisSection({
                 </div>
                 <div className="kpi-sub">
                   Retour en{" "}
-                  {report.payback_months !== null ? `${report.payback_months.toFixed(1)} mois` : "N/A"}
+                  {report.payback_months !== null
+                    ? `${report.payback_months.toFixed(1)} mois`
+                    : "N/A"}
                 </div>
               </div>
             </div>
@@ -110,24 +125,41 @@ export default function AnalysisSection({
                 {report.recommendations.slice(0, 3).map((rec) => {
                   const projectedPct =
                     rec.current_annual_cost > 0
-                      ? Math.min(100, (rec.projected_annual_cost / rec.current_annual_cost) * 100)
+                      ? Math.min(
+                          100,
+                          (rec.projected_annual_cost /
+                            rec.current_annual_cost) *
+                            100
+                        )
                       : 0;
                   const savingsPct = Math.max(0, 100 - projectedPct);
                   return (
                     <div className="bar-row" key={rec.id}>
                       <div className="bar-label">
                         <span>
-                          #{rec.priority_rank} {rec.software_name} → {rec.alternative_name}
+                          #{rec.priority_rank} {rec.software_name} →{" "}
+                          {rec.alternative_name}
                         </span>
                         <span style={{ color: "var(--success)" }}>
                           -{rec.annual_savings.toFixed(0)} €/an (
-                          {rec.roi_percent !== null ? `ROI ${rec.roi_percent.toFixed(0)}%` : "Immédiat"}
+                          {rec.roi_percent !== null
+                            ? `ROI ${rec.roi_percent.toFixed(0)}%`
+                            : "Immédiat"}
                           )
                         </span>
                       </div>
-                      <div className="bar-track" title="Vert: coût projeté | Bleu: économie annuelle">
-                        <div className="bar-projected" style={{ width: `${projectedPct}%` }} />
-                        <div className="bar-savings" style={{ width: `${savingsPct}%` }} />
+                      <div
+                        className="bar-track"
+                        title="Vert: coût projeté | Bleu: économie annuelle"
+                      >
+                        <div
+                          className="bar-projected"
+                          style={{ width: `${projectedPct}%` }}
+                        />
+                        <div
+                          className="bar-savings"
+                          style={{ width: `${savingsPct}%` }}
+                        />
                       </div>
                     </div>
                   );
@@ -153,7 +185,9 @@ export default function AnalysisSection({
                   {report.recommendations.map((rec) => (
                     <tr key={rec.id}>
                       <td>
-                        <span className="badge badge-info">#{rec.priority_rank}</span>
+                        <span className="badge badge-info">
+                          #{rec.priority_rank}
+                        </span>
                       </td>
                       <td>
                         <strong>{rec.software_name}</strong>
@@ -162,8 +196,8 @@ export default function AnalysisSection({
                       <td>
                         <strong>{rec.alternative_name}</strong>
                         <div className="kpi-sub">
-                          {rec.is_open_source ? "Open Source" : "Commercial"} • Match{" "}
-                          {rec.feature_match_score}%
+                          {rec.is_open_source ? "Open Source" : "Commercial"} •
+                          Match {rec.feature_match_score}%
                         </div>
                       </td>
                       <td>{rec.current_annual_cost.toFixed(2)} €</td>
@@ -172,12 +206,18 @@ export default function AnalysisSection({
                         {rec.annual_savings.toFixed(2)} €
                       </td>
                       <td>
-                        {rec.roi_percent !== null ? `${rec.roi_percent.toFixed(1)}%` : "Immédiat"}
+                        {rec.roi_percent !== null
+                          ? `${rec.roi_percent.toFixed(1)}%`
+                          : "Immédiat"}
                         {rec.payback_months !== null && (
-                          <div className="kpi-sub">{rec.payback_months.toFixed(1)} mois</div>
+                          <div className="kpi-sub">
+                            {rec.payback_months.toFixed(1)} mois
+                          </div>
                         )}
                       </td>
-                      <td style={{ maxWidth: "280px", fontSize: "0.82rem" }}>{rec.rationale}</td>
+                      <td style={{ maxWidth: "280px", fontSize: "0.82rem" }}>
+                        {rec.rationale}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

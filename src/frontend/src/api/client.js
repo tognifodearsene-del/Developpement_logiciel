@@ -33,7 +33,10 @@ async function request(path, options = {}) {
     try {
       const payload = await response.json();
       if (payload?.detail) {
-        detail = typeof payload.detail === "string" ? payload.detail : JSON.stringify(payload.detail);
+        detail =
+          typeof payload.detail === "string"
+            ? payload.detail
+            : JSON.stringify(payload.detail);
       }
     } catch {
       // Ignore JSON parsing failure on non-JSON error responses
@@ -57,8 +60,7 @@ export const api = {
   getInventory: () => request("/inventory"),
   createSoftware: (data) =>
     request("/inventory", { method: "POST", body: JSON.stringify(data) }),
-  deleteSoftware: (id) =>
-    request(`/inventory/${id}`, { method: "DELETE" }),
+  deleteSoftware: (id) => request(`/inventory/${id}`, { method: "DELETE" }),
   importCsv: (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -71,9 +73,12 @@ export const api = {
 
   async downloadReport(reportId, format) {
     const token = getStoredToken();
-    const response = await fetch(`${API_BASE}/reports/${reportId}/export?format=${format}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
+    const response = await fetch(
+      `${API_BASE}/reports/${reportId}/export?format=${format}`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
     if (!response.ok) {
       throw new Error(`Impossible d'exporter le rapport (${response.status})`);
     }

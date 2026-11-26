@@ -16,7 +16,10 @@ export default function App() {
 
   const loadWorkspaceData = useCallback(async () => {
     try {
-      const [invData, reports] = await Promise.all([api.getInventory(), api.getReports()]);
+      const [invData, reports] = await Promise.all([
+        api.getInventory(),
+        api.getReports(),
+      ]);
       setInventory(invData);
       setReportsList(reports);
       if (reports.length > 0) {
@@ -118,14 +121,20 @@ export default function App() {
           <span className="brand-badge">OS</span>
           <div>
             <div className="brand-title">OptiStack</div>
-            <div className="brand-subtitle">SaaS d&apos;optimisation des licences logicielles</div>
+            <div className="brand-subtitle">
+              SaaS d&apos;optimisation des licences logicielles
+            </div>
           </div>
         </div>
         <div className="topbar-actions">
           <span className="user-pill">
             {user.full_name} • <strong>{user.company_name}</strong>
           </span>
-          <button type="button" className="btn btn-outline-light" onClick={handleLogout}>
+          <button
+            type="button"
+            className="btn btn-outline-light"
+            onClick={handleLogout}
+          >
             Déconnexion
           </button>
         </div>
@@ -137,27 +146,35 @@ export default function App() {
         <section className="kpi-grid">
           <div className="kpi-card">
             <div className="kpi-label">Logiciels suivis</div>
-            <div className="kpi-value">{inventory?.total_software_count ?? 0}</div>
+            <div className="kpi-value">
+              {inventory?.total_software_count ?? 0}
+            </div>
             <div className="kpi-sub">
               {inventory?.underutilized_count ?? 0} sous-utilisé(s) (&lt; 70%)
             </div>
           </div>
           <div className="kpi-card">
             <div className="kpi-label">Dépense mensuelle</div>
-            <div className="kpi-value">{(inventory?.total_monthly_cost ?? 0).toFixed(0)} €</div>
+            <div className="kpi-value">
+              {(inventory?.total_monthly_cost ?? 0).toFixed(0)} €
+            </div>
             <div className="kpi-sub">
               {(inventory?.total_annual_cost ?? 0).toFixed(0)} € / an
             </div>
           </div>
           <div className="kpi-card">
             <div className="kpi-label">Utilisation moyenne</div>
-            <div className="kpi-value">{(inventory?.average_utilization_rate ?? 0).toFixed(1)}%</div>
+            <div className="kpi-value">
+              {(inventory?.average_utilization_rate ?? 0).toFixed(1)}%
+            </div>
             <div className="kpi-sub">Seuil cible : 70%</div>
           </div>
           <div className="kpi-card">
             <div className="kpi-label">Économies potentielles</div>
             <div className="kpi-value accent-green">
-              {activeReport ? `${activeReport.total_estimated_annual_savings.toFixed(0)} €` : "—"}
+              {activeReport
+                ? `${activeReport.total_estimated_annual_savings.toFixed(0)} €`
+                : "—"}
             </div>
             <div className="kpi-sub">
               {activeReport?.global_roi_percent != null

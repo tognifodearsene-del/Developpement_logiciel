@@ -39,7 +39,11 @@ function downloadTemplateCsv() {
   URL.revokeObjectURL(url);
 }
 
-export default function InventorySection({ inventory, api, onInventoryChanged }) {
+export default function InventorySection({
+  inventory,
+  api,
+  onInventoryChanged,
+}) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -54,7 +58,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
     const purchased = Number(form.licenses_purchased);
     const used = Number(form.licenses_used);
     if (used > purchased) {
-      setError("Les licences utilisées ne peuvent pas dépasser les licences achetées.");
+      setError(
+        "Les licences utilisées ne peuvent pas dépasser les licences achetées."
+      );
       return;
     }
 
@@ -90,7 +96,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
         result.errors?.length > 0
           ? ` (${result.skipped_count} ligne(s) ignorée(s) : ligne ${result.errors[0].line})`
           : "";
-      setMessage(`${result.imported_count} logiciel(s) importé(s) avec succès.${errDetail}`);
+      setMessage(
+        `${result.imported_count} logiciel(s) importé(s) avec succès.${errDetail}`
+      );
       await onInventoryChanged();
     } catch (err) {
       setError(err.message);
@@ -119,16 +127,23 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Importer un inventaire CSV</h2>
-          <button type="button" className="btn btn-outline" onClick={downloadTemplateCsv}>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={downloadTemplateCsv}
+          >
             Télécharger modèle CSV
           </button>
         </div>
         <div className="csv-box">
           <div>
             <strong>Format attendu :</strong>{" "}
-            <code>name,category,vendor,licenses_purchased,licenses_used,monthly_cost_total</code>
+            <code>
+              name,category,vendor,licenses_purchased,licenses_used,monthly_cost_total
+            </code>
             <div className="kpi-sub">
-              Séparateurs virgule <code>,</code> ou point-virgule <code>;</code> supportés (UTF-8).
+              Séparateurs virgule <code>,</code> ou point-virgule <code>;</code>{" "}
+              supportés (UTF-8).
             </div>
           </div>
           <label className="btn btn-primary" style={{ margin: 0 }}>
@@ -190,7 +205,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
               min="1"
               required
               value={form.licenses_purchased}
-              onChange={(e) => setForm({ ...form, licenses_purchased: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, licenses_purchased: e.target.value })
+              }
             />
           </div>
           <div className="field">
@@ -201,7 +218,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
               min="0"
               required
               value={form.licenses_used}
-              onChange={(e) => setForm({ ...form, licenses_used: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, licenses_used: e.target.value })
+              }
             />
           </div>
           <div className="field">
@@ -213,10 +232,16 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
               step="0.01"
               required
               value={form.monthly_cost_total}
-              onChange={(e) => setForm({ ...form, monthly_cost_total: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, monthly_cost_total: e.target.value })
+              }
             />
           </div>
-          <button className="btn btn-primary" type="submit" disabled={submitting}>
+          <button
+            className="btn btn-primary"
+            type="submit"
+            disabled={submitting}
+          >
             {submitting ? "Ajout..." : "Ajouter"}
           </button>
         </form>
@@ -230,8 +255,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
         </div>
         {!inventory || inventory.items.length === 0 ? (
           <p className="kpi-sub">
-            Aucun logiciel enregistré pour le moment. Importez <code>data/sample_inventory.csv</code>{" "}
-            ou utilisez le formulaire ci-dessus.
+            Aucun logiciel enregistré pour le moment. Importez{" "}
+            <code>data/sample_inventory.csv</code> ou utilisez le formulaire
+            ci-dessus.
           </p>
         ) : (
           <div className="table-wrap">
@@ -252,7 +278,9 @@ export default function InventorySection({ inventory, api, onInventoryChanged })
                   <tr key={item.id}>
                     <td>
                       <strong>{item.name}</strong>
-                      {item.vendor && <div className="kpi-sub">{item.vendor}</div>}
+                      {item.vendor && (
+                        <div className="kpi-sub">{item.vendor}</div>
+                      )}
                     </td>
                     <td>{item.category}</td>
                     <td>
