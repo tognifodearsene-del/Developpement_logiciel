@@ -1,0 +1,112 @@
+[
+  {
+    "target_software": "Power BI Pro",
+    "category": "BI & Analytics",
+    "alternative_name": "Apache Superset",
+    "vendor_or_license": "Apache-2.0",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 2.0,
+    "estimated_migration_cost": 900.0,
+    "feature_match_score": 88,
+    "description": "Plateforme BI open-source moderne avec tableaux de bord interactifs et connecteurs SQL."
+  },
+  {
+    "target_software": "Power BI Pro",
+    "category": "BI & Analytics",
+    "alternative_name": "Metabase",
+    "vendor_or_license": "AGPLv3 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 3.0,
+    "estimated_migration_cost": 700.0,
+    "feature_match_score": 84,
+    "description": "Outil BI accessible aux équipes métier pour l'exploration rapide de données et les rapports."
+  },
+  {
+    "target_software": "Slack Business+",
+    "category": "Communication",
+    "alternative_name": "Mattermost",
+    "vendor_or_license": "MIT / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 2.5,
+    "estimated_migration_cost": 1200.0,
+    "feature_match_score": 90,
+    "description": "Messagerie d'équipe auto-hébergeable avec canaux, webhooks et intégrations DevOps."
+  },
+  {
+    "target_software": "Jira Software",
+    "category": "Gestion de projet",
+    "alternative_name": "Plane",
+    "vendor_or_license": "AGPLv3 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 2.0,
+    "estimated_migration_cost": 800.0,
+    "feature_match_score": 86,
+    "description": "Gestion de projets Agile (sprints, backlog, cycles) à coût d'hébergement réduit."
+  },
+  {
+    "target_software": "Jira Software",
+    "category": "Gestion de projet",
+    "alternative_name": "Redmine",
+    "vendor_or_license": "GPLv2 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 1.5,
+    "estimated_migration_cost": 1000.0,
+    "feature_match_score": 78,
+    "description": "Gestionnaire de tickets et suivi de projets éprouvé et léger."
+  },
+  {
+    "target_software": "Microsoft 365 Business",
+    "category": "Bureautique",
+    "alternative_name": "Nextcloud + LibreOffice",
+    "vendor_or_license": "AGPLv3 / MPL-2.0",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 3.5,
+    "estimated_migration_cost": 1500.0,
+    "feature_match_score": 82,
+    "description": "Suite bureautique collaborative et stockage cloud souverain pour PME."
+  },
+  {
+    "target_software": "Adobe Creative Cloud",
+    "category": "Design",
+    "alternative_name": "Penpot + GIMP",
+    "vendor_or_license": "MPL-2.0 / GPLv3",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 0.0,
+    "estimated_migration_cost": 600.0,
+    "feature_match_score": 76,
+    "description": "Outils open-source de design UI collaboratif et de retouche graphique sans coût de licence."
+  },
+  {
+    "target_software": "Salesforce Sales Cloud",
+    "category": "CRM",
+    "alternative_name": "SuiteCRM",
+    "vendor_or_license": "AGPLv3 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 5.0,
+    "estimated_migration_cost": 2500.0,
+    "feature_match_score": 83,
+    "description": "CRM complet couvrant pipeline commercial, comptes, devis et automatisations."
+  },
+  {
+    "target_software": "Zoom Pro",
+    "category": "Visioconférence",
+    "alternative_name": "Jitsi Meet",
+    "vendor_or_license": "Apache-2.0 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 1.0,
+    "estimated_migration_cost": 300.0,
+    "feature_match_score": 85,
+    "description": "Solution de visioconférence web sans licence par utilisateur, simple à déployer."
+  },
+  {
+    "target_software": "Notion Plus",
+    "category": "Documentation",
+    "alternative_name": "AppFlowy",
+    "vendor_or_license": "AGPLv3 / Open Source",
+    "is_open_source": true,
+    "estimated_monthly_cost_per_user": 1.5,
+    "estimated_migration_cost": 500.0,
+    "feature_match_score": 81,
+    "description": "Espace de connaissances collaboratif open-source pour wikis, notes et bases de données."
+  }
+]
