@@ -31,7 +31,9 @@ Ce projet met en pratique l'utilisation des agents IA, la gestion de projet Agil
 │   ├── automatisation.md
 │   ├── gantt_v1.md
 │   └── use_cases.puml
-├── src/                        # Code source de l'application (à venir)
+├── src/                        # Code source de l'application
+│   ├── backend/                # API FastAPI, SQLAlchemy, moteur ROI & tests pytest
+│   └── frontend/               # Interface React + Vite
 ├── .env.example
 ├── .gitignore
 ├── .pre-commit-config.yaml

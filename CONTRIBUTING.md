@@ -6,10 +6,12 @@ Bienvenue les développeurs !
 
 1. Cloner le dépôt : `git clone <url-du-repo>`
 2. Activer les hooks pre-commit : `pip install pre-commit && pre-commit install`
-3. Backend :
-   - Linux / macOS : `python -m venv venv && source venv/bin/activate && pip install -r requirements.txt`
-   - Windows (PowerShell) : `python -m venv venv && .\venv\Scripts\Activate.ps1 && pip install -r requirements.txt`
-4. Frontend : `npm install`
+3. Backend (`src/backend`) :
+   - Linux / macOS : `cd src/backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt`
+   - Windows (PowerShell) : `cd src/backend && python -m venv venv && .\venv\Scripts\Activate.ps1 && pip install -r requirements.txt`
+   - Lancer l'API : `uvicorn app.main:app --reload`
+   - Lancer les tests : `pytest tests -v --cov=app`
+4. Frontend (`src/frontend`) : `cd src/frontend && npm install && npm run dev`
 
 ## Git Workflow
 
