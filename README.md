@@ -23,11 +23,14 @@ Ce projet met en pratique l'utilisation des agents IA, la gestion de projet Agil
 ## 📁 Structure du dépôt
 
 ```text
-├── docs/                       # Documentation (Cadrage, UML, Gantt, Automatisation)
+├── data/                       # Jeux de données et catalogue d'alternatives
+│   ├── alternatives_seed.json
+│   └── sample_inventory.csv
+├── docs/                       # Documentation (Cadrage, UML, Gantt, Architecture)
+│   ├── architecture.md
 │   ├── automatisation.md
 │   ├── gantt_v1.md
-│   ├── use_cases.puml
-│   └── architecture.md         # (à venir)
+│   └── use_cases.puml
 ├── src/                        # Code source de l'application (à venir)
 ├── .env.example
 ├── .gitignore
@@ -76,7 +79,7 @@ La V1 d'OptiStack doit permettre à un client PME de :
 - le ROI est calculé et visible sur le dashboard,
 - le rapport peut être exporté et présenté à un décideur.
 
-Voir le planning détaillé dans [docs/gantt_v1.md](docs/gantt_v1.md) et les cas d'utilisation dans [docs/use_cases.puml](docs/use_cases.puml).
+Voir l'architecture et les spécifications dans [docs/architecture.md](docs/architecture.md), le planning détaillé dans [docs/gantt_v1.md](docs/gantt_v1.md) et les cas d'utilisation dans [docs/use_cases.puml](docs/use_cases.puml).
 
 ## 📝 Livrables de la Séance 1
 
