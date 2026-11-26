@@ -1,4 +1,4 @@
-"""Unit tests for license utilization and ROI calculations."""
+"""Tests unitaires du moteur d'utilisation des licences et de calcul de ROI."""
 
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,7 @@ from app.services.roi_engine import (
 
 
 def test_compute_item_metrics_underutilized_vs_healthy() -> None:
+    """Vérifie le seuil de sous-utilisation (< 70%) et le calcul du coût annuel."""
     annual, util, underutilized = compute_item_metrics(300.0, 30, 14)
     assert annual == 3600.0
     assert util == 46.67
@@ -24,6 +25,7 @@ def test_compute_item_metrics_underutilized_vs_healthy() -> None:
 
 
 def test_compute_recommendation_metrics_with_and_without_migration_cost() -> None:
+    """Vérifie le calcul ROI/payback avec coût de migration positif et nul."""
     item = SoftwareItem(
         user_id=1,
         name="Power BI Pro",
@@ -51,6 +53,7 @@ def test_compute_recommendation_metrics_with_and_without_migration_cost() -> Non
     assert rec.roi_percent == 262.67
     assert rec.payback_months == 3.31
 
+    # Cas limite : migration gratuite -> roi_percent doit être None (gain immédiat sans division par 0)
     alt_zero_migration = AlternativeCatalog(
         target_software="Power BI Pro",
         category="BI & Analytics",
@@ -67,6 +70,7 @@ def test_compute_recommendation_metrics_with_and_without_migration_cost() -> Non
 
 
 def test_generate_analysis_report_produces_at_least_three_recommendations(db_session: Session) -> None:
+    """Vérifie qu'un petit parc (2 logiciels) produit bien au moins 3 recommandations classées."""
     user = User(
         email="cto@pme.fr",
         password_hash=hash_password("secret123"),

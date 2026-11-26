@@ -1,4 +1,4 @@
-"""SQLAlchemy ORM models matching docs/architecture.md."""
+"""Modèles relationnels ORM SQLAlchemy conformes au MCD de docs/architecture.md."""
 
 from datetime import datetime, timezone
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
@@ -8,11 +8,12 @@ from app.database import Base
 
 
 def _utcnow() -> datetime:
+    """Horodatage UTC utilisé par défaut lors de la création des enregistrements."""
     return datetime.now(timezone.utc)
 
 
 class User(Base):
-    """SaaS user account (client or admin)."""
+    """Compte utilisateur SaaS (client PME ou administrateur du catalogue)."""
 
     __tablename__ = "users"
 
@@ -21,9 +22,11 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(120), nullable=False)
     company_name: Mapped[str] = mapped_column(String(120), nullable=False, default="PME Demo")
+    # Rôle applicatif : "client" par défaut, "admin" pour gérer le catalogue d'alternatives
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="client")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
+    # Suppression en cascade pour nettoyer l'inventaire et les rapports si le compte est supprimé
     software_items: Mapped[list["SoftwareItem"]] = relationship(
         back_populates="owner", cascade="all, delete-orphan"
     )
@@ -33,7 +36,7 @@ class User(Base):
 
 
 class SoftwareItem(Base):
-    """Software license entry in a user's stack inventory."""
+    """Logiciel payant déclaré dans le parc informatique d'un utilisateur."""
 
     __tablename__ = "software_items"
 
@@ -44,6 +47,7 @@ class SoftwareItem(Base):
     vendor: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     licenses_purchased: Mapped[int] = mapped_column(Integer, nullable=False)
     licenses_used: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Coût mensuel total en EUR pour l'ensemble des licences achetées de ce logiciel
     monthly_cost_total: Mapped[float] = mapped_column(Float, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
@@ -54,7 +58,7 @@ class SoftwareItem(Base):
 
 
 class AlternativeCatalog(Base):
-    """Reference catalog of lower-cost or open-source software alternatives."""
+    """Catalogue de référence des alternatives open-source ou moins onéreuses."""
 
     __tablename__ = "alternatives_catalog"
 
@@ -66,6 +70,7 @@ class AlternativeCatalog(Base):
     is_open_source: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     estimated_monthly_cost_per_user: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     estimated_migration_cost: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    # Score d'adéquation fonctionnelle sur 100 servant au départage des recommandations
     feature_match_score: Mapped[int] = mapped_column(Integer, nullable=False, default=80)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
@@ -73,7 +78,7 @@ class AlternativeCatalog(Base):
 
 
 class AnalysisReport(Base):
-    """Generated cost & ROI analysis report snapshot."""
+    """Instantané d'un rapport d'analyse financière et de ROI généré à un instant T."""
 
     __tablename__ = "analysis_reports"
 
@@ -82,6 +87,7 @@ class AnalysisReport(Base):
     total_current_annual_cost: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     total_estimated_annual_savings: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     total_migration_cost: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    # Null lorsque le coût total de migration est nul (gain immédiat sans investissement initial)
     global_roi_percent: Mapped[float | None] = mapped_column(Float, nullable=True)
     payback_months: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
@@ -95,7 +101,7 @@ class AnalysisReport(Base):
 
 
 class Recommendation(Base):
-    """Single software alternative recommendation and ROI calculation inside a report."""
+    """Recommandation chiffrée associant un logiciel du parc à une alternative du catalogue."""
 
     __tablename__ = "recommendations"
 

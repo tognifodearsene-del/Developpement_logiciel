@@ -1,4 +1,4 @@
-"""OptiStack FastAPI application entrypoint."""
+"""Point d'entrée de l'application FastAPI OptiStack (routes, CORS et initialisation DB)."""
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -12,7 +12,7 @@ from app.services.seed import seed_alternatives
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    """Initialize database schema and seed initial benchmark alternatives."""
+    """Cycle de vie au démarrage : crée les tables si absentes et peuple le catalogue initial."""
     settings = get_settings()
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
@@ -21,7 +21,7 @@ async def lifespan(_: FastAPI):
 
 
 def create_app() -> FastAPI:
-    """Build and configure the FastAPI application."""
+    """Assemble l'instance FastAPI, le middleware CORS et l'ensemble des routeurs /api."""
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Autorise le frontend React (ports 3000 / 5173) à appeler l'API depuis le navigateur
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
 
     @application.get("/api/health", tags=["system"])
     def health() -> dict[str, str]:
+        """Route de supervision permettant de vérifier que l'API répond."""
         return {"status": "ok", "version": settings.app_version}
 
     application.include_router(auth.router)

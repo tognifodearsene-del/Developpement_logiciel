@@ -21,6 +21,7 @@ const INITIAL_FORM = {
   monthly_cost_total: "250",
 };
 
+// Génère localement un CSV modèle conforme à docs/architecture.md pour tester l'import en < 5 min
 function downloadTemplateCsv() {
   const sample = [
     "name,category,vendor,licenses_purchased,licenses_used,monthly_cost_total",
@@ -39,6 +40,9 @@ function downloadTemplateCsv() {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Onglet de gestion du parc logiciel : import CSV, saisie manuelle et suivi du taux d'utilisation.
+ */
 export default function InventorySection({
   inventory,
   api,
@@ -55,6 +59,7 @@ export default function InventorySection({
     setError("");
     setMessage("");
 
+    // Contrôle immédiat côté client pour éviter un aller-retour API inutile
     const purchased = Number(form.licenses_purchased);
     const used = Number(form.licenses_used);
     if (used > purchased) {
@@ -104,6 +109,7 @@ export default function InventorySection({
       setError(err.message);
     } finally {
       setImporting(false);
+      // Réinitialise l'input pour autoriser la réimportation du même fichier après correction
       event.target.value = "";
     }
   }

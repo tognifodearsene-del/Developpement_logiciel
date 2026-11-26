@@ -1,4 +1,4 @@
-"""End-to-end API integration tests for OptiStack V1 endpoints."""
+"""Tests d'intégration de bout en bout des endpoints REST de l'API OptiStack V1."""
 
 from pathlib import Path
 
@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _register_and_auth_headers(client: TestClient, email: str = "dsi@pme.fr") -> dict[str, str]:
+    """Inscrit un utilisateur de test et renvoie son en-tête Authorization Bearer."""
     resp = client.post(
         "/api/auth/register",
         json={
@@ -28,14 +29,17 @@ def _register_and_auth_headers(client: TestClient, email: str = "dsi@pme.fr") ->
 
 
 def test_health_endpoint(client: TestClient) -> None:
+    """Vérifie la disponibilité de la route de supervision /api/health."""
     resp = client.get("/api/health")
     assert resp.status_code == 200
     assert resp.json()["status"] == "ok"
 
 
 def test_auth_register_login_and_me(client: TestClient) -> None:
+    """Teste l'inscription, le blocage des doublons (409), la connexion et le contrôle JWT."""
     headers = _register_and_auth_headers(client, "sami@pme.fr")
 
+    # Un second compte avec le même email doit être rejeté
     dup = client.post(
         "/api/auth/register",
         json={
@@ -62,13 +66,14 @@ def test_auth_register_login_and_me(client: TestClient) -> None:
 
 
 def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -> None:
+    """Scénario complet : CRUD inventaire, import sample_inventory.csv, analyse ROI et export CSV/PDF."""
     headers = _register_and_auth_headers(client)
 
-    # Empty inventory cannot run analysis
+    # Impossible de lancer une analyse tant que l'inventaire est vide
     empty_run = client.post("/api/analysis/run", headers=headers)
     assert empty_run.status_code == 400
 
-    # Manual add, update, delete
+    # Ajout manuel, tentative de mise à jour incohérente (422) puis suppression (204)
     create_resp = client.post(
         "/api/inventory",
         headers=headers,
@@ -95,7 +100,7 @@ def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -
     del_resp = client.delete(f"/api/inventory/{item_id}", headers=headers)
     assert del_resp.status_code == 204
 
-    # CSV import using sample_inventory.csv
+    # Import du fichier exemple PME (8 logiciels)
     sample_csv = (REPO_ROOT / "data" / "sample_inventory.csv").read_bytes()
     import_resp = client.post(
         "/api/inventory/import-csv",
@@ -112,7 +117,7 @@ def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -
     assert inv_resp.json()["total_monthly_cost"] == 4770.0
     assert inv_resp.json()["total_annual_cost"] == 57240.0
 
-    # Run analysis and verify Top 3+ recommendations
+    # Génération du rapport d'analyse ROI
     run_resp = client.post("/api/analysis/run", headers=headers)
     assert run_resp.status_code == 201
     report = run_resp.json()
@@ -121,7 +126,7 @@ def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -
     assert report["total_estimated_annual_savings"] > 0
     assert report["recommendations"][0]["priority_rank"] == 1
 
-    # List and retrieve reports
+    # Consultation de l'historique et du détail
     list_reports = client.get("/api/analysis/reports", headers=headers)
     assert list_reports.status_code == 200
     assert len(list_reports.json()) == 1
@@ -129,7 +134,7 @@ def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -
     detail_resp = client.get(f"/api/analysis/reports/{report_id}", headers=headers)
     assert detail_resp.status_code == 200
 
-    # Export CSV & PDF
+    # Vérification des exports CSV et PDF
     csv_export = client.get(f"/api/reports/{report_id}/export?format=csv", headers=headers)
     assert csv_export.status_code == 200
     assert "priority_rank,software_name" in csv_export.text
@@ -140,6 +145,7 @@ def test_inventory_crud_and_csv_import_and_analysis_export(client: TestClient) -
 
 
 def test_alternatives_admin_access_control(client: TestClient, db_session: Session) -> None:
+    """Vérifie qu'un client ne peut pas modifier le catalogue (403) contrairement à un admin (201)."""
     user_headers = _register_and_auth_headers(client, "client@pme.fr")
 
     list_resp = client.get("/api/alternatives?category=BI", headers=user_headers)
@@ -160,6 +166,7 @@ def test_alternatives_admin_access_control(client: TestClient, db_session: Sessi
     forbidden = client.post("/api/alternatives", headers=user_headers, json=payload)
     assert forbidden.status_code == 403
 
+    # Création d'un compte admin en base pour tester l'ajout au catalogue
     admin = User(
         email="admin@optistack.io",
         password_hash=hash_password("AdminPass123!"),

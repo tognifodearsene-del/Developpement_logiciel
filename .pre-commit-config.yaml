@@ -1,7 +1,11 @@
+# Hooks exécutés localement avant chaque commit pour garantir la propreté du dépôt
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
+      # Vérifie que tous les fichiers YAML (.yml/.yaml) ont une syntaxe valide
       - id: check-yaml
+      # Garantit exactement une ligne vide en fin de fichier (convention POSIX/Git)
       - id: end-of-file-fixer
+      # Supprime les espaces ou tabulations inutiles en fin de ligne
       - id: trailing-whitespace

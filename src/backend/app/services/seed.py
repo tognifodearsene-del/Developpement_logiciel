@@ -1,4 +1,4 @@
-"""Idempotent database seeding for the software alternatives catalog."""
+"""Initialisation idempotente du catalogue d'alternatives depuis le fichier JSON de référence."""
 
 import json
 from pathlib import Path
@@ -9,7 +9,7 @@ from app.models import AlternativeCatalog
 
 
 def seed_alternatives(db: Session, seed_path: Path) -> int:
-    """Populate alternatives_catalog from JSON seed file if currently empty."""
+    """Peuple la table alternatives_catalog si elle est encore vide (idempotent)."""
     existing_count = db.scalar(select(func.count(AlternativeCatalog.id))) or 0
     if existing_count > 0 or not seed_path.exists():
         return 0

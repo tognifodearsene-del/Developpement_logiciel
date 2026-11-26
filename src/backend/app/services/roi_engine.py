@@ -1,4 +1,4 @@
-"""Cost, license utilization, and ROI calculation engine."""
+"""Moteur métier de calcul de coûts, détection de sous-utilisation et calcul de ROI."""
 
 from dataclasses import dataclass
 from sqlalchemy import select
@@ -7,11 +7,14 @@ from sqlalchemy.orm import Session
 from app.models import AlternativeCatalog, AnalysisReport, Recommendation, SoftwareItem, User
 
 
+# Seuil en dessous duquel un logiciel est signalé comme sous-utilisé (< 70% de licences actives)
 UNDERUTILIZATION_THRESHOLD = 70.0
 
 
 @dataclass(frozen=True)
 class ComputedRecommendation:
+    """Résultat intermédiaire avant persistance en base d'une recommandation chiffrée."""
+
     software_item: SoftwareItem
     alternative: AlternativeCatalog
     current_annual_cost: float
@@ -26,7 +29,7 @@ class ComputedRecommendation:
 def compute_item_metrics(
     monthly_cost_total: float, licenses_purchased: int, licenses_used: int
 ) -> tuple[float, float, bool]:
-    """Return (annual_cost, utilization_rate_pct, is_underutilized)."""
+    """Calcule (coût_annuel, taux_utilisation_%, est_sous_utilisé) pour un logiciel du parc."""
     annual_cost = round(monthly_cost_total * 12.0, 2)
     utilization_rate = round((licenses_used / licenses_purchased) * 100.0, 2) if licenses_purchased else 0.0
     is_underutilized = utilization_rate < UNDERUTILIZATION_THRESHOLD
@@ -36,12 +39,14 @@ def compute_item_metrics(
 def compute_recommendation_metrics(
     item: SoftwareItem, alt: AlternativeCatalog
 ) -> ComputedRecommendation | None:
-    """Compute projected savings, ROI%, and payback months for an item/alternative pair."""
+    """Évalue les économies, le ROI sur 12 mois et le payback pour un couple logiciel/alternative."""
     current_annual_cost, utilization_rate, is_underutilized = compute_item_metrics(
         item.monthly_cost_total, item.licenses_purchased, item.licenses_used
     )
+    # Dimensionnement au plus juste : on ne projette que le nombre de licences réellement utilisées
     projected_annual_cost = round(alt.estimated_monthly_cost_per_user * item.licenses_used * 12.0, 2)
     annual_savings = round(current_annual_cost - projected_annual_cost, 2)
+    # On écarte toute alternative qui ne génère pas d'économie annuelle nette positive
     if annual_savings <= 0:
         return None
 
@@ -50,6 +55,7 @@ def compute_recommendation_metrics(
         roi_percent = round(((annual_savings - migration_cost) / migration_cost) * 100.0, 2)
         payback_months = round(migration_cost / (annual_savings / 12.0), 2)
     else:
+        # Si le coût de transition est nul, le gain est immédiat (division par zéro évitée)
         roi_percent = None
         payback_months = 0.0
 
@@ -77,6 +83,7 @@ def compute_recommendation_metrics(
 
 
 def _match_candidates(item: SoftwareItem, catalog: list[AlternativeCatalog]) -> list[AlternativeCatalog]:
+    """Recherche prioritairement le nom exact du logiciel, puis se rabat sur sa catégorie."""
     target_norm = item.name.strip().lower()
     exact = [alt for alt in catalog if alt.target_software.strip().lower() == target_norm]
     if exact:
@@ -87,12 +94,13 @@ def _match_candidates(item: SoftwareItem, catalog: list[AlternativeCatalog]) -> 
 
 
 def _score_key(rec: ComputedRecommendation) -> tuple[float, int]:
+    """Clé de tri : privilégie le gain net sur 1 an, puis le score de couverture fonctionnelle."""
     net_year_one = rec.annual_savings - rec.migration_cost
     return (net_year_one, rec.alternative.feature_match_score)
 
 
 def generate_analysis_report(db: Session, user: User) -> AnalysisReport:
-    """Run stack analysis for a user and persist an AnalysisReport with ranked recommendations."""
+    """Analyse tout le parc d'un client, classe les recommandations et persiste le rapport."""
     items = list(
         db.scalars(select(SoftwareItem).where(SoftwareItem.user_id == user.id).order_by(SoftwareItem.id))
     )
@@ -111,19 +119,21 @@ def generate_analysis_report(db: Session, user: User) -> AnalysisReport:
         if not computed:
             continue
         computed.sort(key=_score_key, reverse=True)
+        # On retient la meilleure alternative par logiciel pour les totaux financiers
         primary.append(computed[0])
         secondary.extend(computed[1:])
 
     primary.sort(key=_score_key, reverse=True)
     selected = list(primary)
 
-    # Ensure at least 3 recommendations when secondary alternatives exist on smaller inventories
+    # Si l'inventaire est petit (< 3 logiciels), on complète avec des alternatives secondaires
+    # afin de respecter le critère V1 : proposer au moins 3 recommandations exploitables
     if len(selected) < 3 and secondary:
         secondary.sort(key=_score_key, reverse=True)
         needed = 3 - len(selected)
         selected.extend(secondary[:needed])
 
-    # Aggregate financial KPIs once per software item (using primary recommendations)
+    # Les KPI agrégés ne comptent qu'une recommandation principale par logiciel (pas de double comptage)
     total_annual_savings = round(sum(rec.annual_savings for rec in primary), 2)
     total_migration_cost = round(sum(rec.migration_cost for rec in primary), 2)
 

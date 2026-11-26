@@ -1,4 +1,4 @@
-"""Benchmark alternatives catalog routes."""
+"""Routes de consultation et d'administration du catalogue d'alternatives (/api/alternatives)."""
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
@@ -20,7 +20,7 @@ def list_alternatives(
     _: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[AlternativeResponse]:
-    """List available software alternatives with optional filtering."""
+    """Liste les alternatives disponibles avec filtrage optionnel par catégorie ou logiciel cible."""
     stmt = select(AlternativeCatalog).order_by(AlternativeCatalog.target_software)
     if category:
         stmt = stmt.where(AlternativeCatalog.category.ilike(f"%{category.strip()}%"))
@@ -37,7 +37,7 @@ def create_alternative(
     _: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> AlternativeResponse:
-    """Add an alternative to the benchmark catalog (admin only)."""
+    """Ajoute une nouvelle alternative au catalogue de référence (accès administrateur uniquement)."""
     alt = AlternativeCatalog(**payload.model_dump())
     db.add(alt)
     db.commit()

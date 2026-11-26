@@ -1,4 +1,4 @@
-"""Authentication and user profile routes."""
+"""Routes d'authentification et de consultation du profil utilisateur (/api/auth)."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: UserRegister, db: Session = Depends(get_db)) -> TokenResponse:
-    """Register a new client account and return an access token."""
+    """Crée un compte client (avec email normalisé en minuscules) et retourne un JWT immédiat."""
     normalized_email = payload.email.strip().lower()
     existing = db.scalar(select(User).where(User.email == normalized_email))
     if existing is not None:
@@ -24,6 +24,7 @@ def register(payload: UserRegister, db: Session = Depends(get_db)) -> TokenRespo
             detail="Un compte existe déjà avec cette adresse email",
         )
 
+    # Le rôle est forcé à "client" lors d'une inscription publique pour éviter toute élévation de privilèges
     user = User(
         email=normalized_email,
         password_hash=hash_password(payload.password),
@@ -41,7 +42,7 @@ def register(payload: UserRegister, db: Session = Depends(get_db)) -> TokenRespo
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenResponse:
-    """Authenticate a user and return a JWT bearer token."""
+    """Authentifie un utilisateur existant et délivre un jeton Bearer JWT."""
     normalized_email = payload.email.strip().lower()
     user = db.scalar(select(User).where(User.email == normalized_email))
     if user is None or not verify_password(payload.password, user.password_hash):
@@ -56,5 +57,5 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenResponse:
 
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)) -> UserResponse:
-    """Return currently authenticated user profile."""
+    """Renvoie le profil de l'utilisateur authentifié à partir du token JWT."""
     return UserResponse.model_validate(current_user)

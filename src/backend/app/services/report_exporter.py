@@ -1,4 +1,4 @@
-"""CSV and PDF export services for analysis reports."""
+"""Services d'export des rapports d'analyse en CSV (Excel) et PDF 1.4 pur Python."""
 
 import csv
 import io
@@ -9,7 +9,7 @@ from app.models import AnalysisReport
 
 
 def export_report_csv(report: AnalysisReport) -> bytes:
-    """Serialize an AnalysisReport and its recommendations as UTF-8-SIG CSV."""
+    """Sérialise les recommandations d'un rapport en CSV UTF-8 avec BOM pour Excel."""
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(
@@ -51,18 +51,19 @@ def export_report_csv(report: AnalysisReport) -> bytes:
 
 
 def _ascii_safe(text: str) -> str:
+    """Normalise le texte en ASCII et échappe les parenthèses pour la police PDF Helvetica Type1."""
     normalized = unicodedata.normalize("NFKD", text)
     ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
     return ascii_text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
 def _build_pdf_from_lines(lines: list[str]) -> bytes:
-    """Generate a lightweight, valid single/multi-page PDF 1.4 document with Helvetica."""
+    """Construit un document PDF 1.4 multi-pages sans dépendance système externe (Cairo/GTK)."""
     lines_per_page = 46
     pages_lines = [lines[i : i + lines_per_page] for i in range(0, len(lines), lines_per_page)] or [["Rapport vide"]]
 
     objects: list[bytes] = []
-    # 1: Catalog, 2: Pages, 3: Font
+    # Objet 1 : catalogue racine ; Objet 2 : arbre des pages ; Objet 3 : police Helvetica standard
     objects.append(b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n")
 
     page_obj_ids: list[int] = []
@@ -70,6 +71,7 @@ def _build_pdf_from_lines(lines: list[str]) -> bytes:
     page_entries: list[tuple[int, int, bytes]] = []
 
     for page_lines in pages_lines:
+        # Opérateurs de flux texte PDF (coordonnées A4 en points, interligne 15 pt)
         content_ops = ["BT", "/F1 10 Tf", "45 780 Td", "15 TL"]
         for idx, line in enumerate(page_lines):
             escaped = _ascii_safe(line)
@@ -105,6 +107,7 @@ def _build_pdf_from_lines(lines: list[str]) -> bytes:
         objects.append(page_obj)
         objects.append(content_obj)
 
+    # Assemblage du fichier et table des offsets (xref) exigée par la norme PDF 1.4
     buffer = io.BytesIO()
     buffer.write(b"%PDF-1.4\n")
     offsets: list[int] = [0]
@@ -125,7 +128,7 @@ def _build_pdf_from_lines(lines: list[str]) -> bytes:
 
 
 def export_report_pdf(report: AnalysisReport) -> bytes:
-    """Export an AnalysisReport to a structured PDF document."""
+    """Met en forme le résumé exécutif et le détail des recommandations dans un PDF téléchargeable."""
     roi_label = f"{report.global_roi_percent:.1f}%" if report.global_roi_percent is not None else "Immediat"
     payback_label = f"{report.payback_months:.1f} mois" if report.payback_months is not None else "N/A"
     company = report.owner.company_name if report.owner else "PME"

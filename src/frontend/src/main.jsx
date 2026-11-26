@@ -1,3 +1,4 @@
+// Point d'entrée React : monte l'application OptiStack et charge la feuille de style globale
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";

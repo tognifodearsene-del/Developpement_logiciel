@@ -1,4 +1,4 @@
-"""Unit tests for CSV inventory parsing and validation."""
+"""Tests unitaires du parseur CSV d'inventaire logiciel."""
 
 from pathlib import Path
 
@@ -9,6 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_parse_sample_inventory_csv_success() -> None:
+    """Vérifie l'import complet sans erreur du jeu de démonstration data/sample_inventory.csv."""
     sample_path = REPO_ROOT / "data" / "sample_inventory.csv"
     items, errors = parse_inventory_csv(sample_path.read_bytes())
 
@@ -21,6 +22,7 @@ def test_parse_sample_inventory_csv_success() -> None:
 
 
 def test_parse_semicolon_bom_csv_with_comma_decimals() -> None:
+    """Vérifie la compatibilité Excel FR : BOM UTF-8, séparateur ';' et virgules décimales."""
     csv_payload = (
         "\ufeffname;category;vendor;licenses_purchased;licenses_used;monthly_cost_total\n"
         "Slack Business+;Communication;Salesforce;20;10;250,50\n"
@@ -34,6 +36,7 @@ def test_parse_semicolon_bom_csv_with_comma_decimals() -> None:
 
 
 def test_parse_csv_missing_required_column() -> None:
+    """Vérifie le rejet immédiat lorsqu'une colonne obligatoire manque dans l'en-tête."""
     csv_payload = b"name,category,licenses_purchased\nPower BI,BI,10\n"
     items, errors = parse_inventory_csv(csv_payload)
 
@@ -44,6 +47,7 @@ def test_parse_csv_missing_required_column() -> None:
 
 
 def test_parse_csv_partial_invalid_rows_reports_line_numbers() -> None:
+    """Vérifie que les lignes valides sont importées et les lignes invalides signalées avec leur numéro."""
     csv_payload = (
         "name,category,vendor,licenses_purchased,licenses_used,monthly_cost_total\n"
         "ValidApp,CRM,Acme,10,8,100\n"
@@ -59,5 +63,6 @@ def test_parse_csv_partial_invalid_rows_reports_line_numbers() -> None:
 
 
 def test_parse_csv_empty_and_bad_encoding() -> None:
+    """Vérifie le traitement propre d'un fichier vide et d'un encodage non UTF-8."""
     assert parse_inventory_csv(b"   ")[1][0].line == 1
     assert "Encodage invalide" in parse_inventory_csv(b"\xff\xfe\x00")[1][0].message

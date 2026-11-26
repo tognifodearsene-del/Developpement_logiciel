@@ -1,3 +1,4 @@
+/* Variables de thème et mise en page du tableau de bord OptiStack V1 */
 :root {
   --bg: #f4f6fb;
   --surface: #ffffff;
@@ -35,6 +36,7 @@ body {
   line-height: 1.5;
 }
 
+/* Structure générale et barre supérieure */
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -98,6 +100,7 @@ body {
   gap: 1.5rem;
 }
 
+/* Cartes, grilles KPI et onglets */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -185,6 +188,7 @@ body {
   color: #ffffff;
 }
 
+/* Boutons et formulaires */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -266,6 +270,7 @@ body {
   background: #ffffff;
 }
 
+/* Alertes, tableaux et badges d'état */
 .alert {
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -333,6 +338,7 @@ th {
   color: var(--primary);
 }
 
+/* Écran d'authentification et graphiques comparatifs */
 .auth-wrapper {
   min-height: 100vh;
   display: flex;

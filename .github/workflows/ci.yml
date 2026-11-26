@@ -1,12 +1,16 @@
+# Pipeline d'intégration continue (CI) exécuté automatiquement sur GitHub Actions
 name: OptiStack CI
 
 on:
+  # Déclenchement sur les branches principales et de fonctionnalités
   push:
     branches: [main, "feat/**", "feature/**", "chore/**"]
+  # Déclenchement systématique avant fusion d'une Pull Request vers main
   pull_request:
     branches: [main]
 
 jobs:
+  # 1. Contrôle qualité transverse (YAML, espaces superflus, fins de fichier)
   pre-commit:
     name: Quality Hooks (pre-commit)
     runs-on: ubuntu-latest
@@ -20,6 +24,7 @@ jobs:
           pip install pre-commit
           pre-commit run --all-files
 
+  # 2. Suite de tests backend avec exigence minimale de couverture > 70% (CONTRIBUTING.md)
   backend:
     name: Backend Tests & Coverage
     runs-on: ubuntu-latest
@@ -38,6 +43,7 @@ jobs:
       - name: Run pytest with >70% coverage threshold
         run: pytest tests -v --cov=app --cov-report=term-missing --cov-fail-under=70
 
+  # 3. Validation frontend : formatage Prettier, règles ESLint et build Vite de production
   frontend:
     name: Frontend Format, Lint & Build
     runs-on: ubuntu-latest

@@ -4,6 +4,9 @@ import AnalysisSection from "./components/AnalysisSection";
 import AuthView from "./components/AuthView";
 import InventorySection from "./components/InventorySection";
 
+/**
+ * Composant racine : orchestre la session JWT, le chargement du parc/rapports et les onglets MVP.
+ */
 export default function App() {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(Boolean(getStoredToken()));
@@ -14,6 +17,7 @@ export default function App() {
   const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [globalError, setGlobalError] = useState("");
 
+  // Charge en parallèle l'inventaire courant et l'historique des rapports ROI
   const loadWorkspaceData = useCallback(async () => {
     try {
       const [invData, reports] = await Promise.all([
@@ -22,6 +26,7 @@ export default function App() {
       ]);
       setInventory(invData);
       setReportsList(reports);
+      // Affiche automatiquement le rapport le plus récent s'il existe
       if (reports.length > 0) {
         const detail = await api.getReportDetail(reports[0].id);
         setActiveReport(detail);
@@ -33,6 +38,7 @@ export default function App() {
     }
   }, []);
 
+  // Vérifie au montage si un jeton JWT stocké en localStorage est toujours valide
   useEffect(() => {
     const token = getStoredToken();
     if (!token) {
@@ -46,6 +52,7 @@ export default function App() {
         return loadWorkspaceData();
       })
       .catch(() => {
+        // Jeton expiré ou invalide : réinitialise la session proprement
         setStoredToken(null);
         setUser(null);
       })
@@ -143,6 +150,7 @@ export default function App() {
       <main className="main-content">
         {globalError && <div className="alert alert-error">{globalError}</div>}
 
+        {/* Bandeau de KPIs synthétiques mis à jour dès qu'un inventaire ou rapport change */}
         <section className="kpi-grid">
           <div className="kpi-card">
             <div className="kpi-label">Logiciels suivis</div>

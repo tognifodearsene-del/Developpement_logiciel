@@ -1,4 +1,4 @@
-"""CSV inventory parser and validator."""
+"""Parseur et validateur tolérant pour l'import de fichiers CSV d'inventaire logiciel."""
 
 import csv
 import io
@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from app.schemas import CsvImportError, SoftwareItemCreate
 
 
+# Colonnes minimales exigées par la spécification dans docs/architecture.md
 REQUIRED_COLUMNS = {
     "name",
     "category",
@@ -17,6 +18,7 @@ REQUIRED_COLUMNS = {
 
 
 def _detect_delimiter(sample_text: str) -> str:
+    """Détecte automatiquement le séparateur ',' (standard) ou ';' (export Excel français)."""
     first_line = next((line for line in sample_text.splitlines() if line.strip()), "")
     if first_line.count(";") > first_line.count(","):
         return ";"
@@ -24,8 +26,9 @@ def _detect_delimiter(sample_text: str) -> str:
 
 
 def parse_inventory_csv(content: bytes) -> tuple[list[SoftwareItemCreate], list[CsvImportError]]:
-    """Parse and validate a CSV software inventory payload."""
+    """Valide un fichier CSV brut et retourne séparément les éléments valides et les erreurs par ligne."""
     try:
+        # utf-8-sig supprime automatiquement l'éventuel BOM ajouté par Excel sous Windows
         text = content.decode("utf-8-sig")
     except UnicodeDecodeError:
         return [], [CsvImportError(line=1, message="Encodage invalide : UTF-8 requis")]
@@ -53,12 +56,14 @@ def parse_inventory_csv(content: bytes) -> tuple[list[SoftwareItemCreate], list[
     items: list[SoftwareItemCreate] = []
     errors: list[CsvImportError] = []
 
+    # Numérotation démarrant à 2 car la ligne 1 contient les en-têtes
     for line_num, row in enumerate(reader, start=2):
-        # Skip completely empty trailing rows
+        # Ignore les lignes vides en fin de fichier
         if not any((v or "").strip() for v in row.values()):
             continue
 
         raw_cost = (row.get("monthly_cost_total") or "").strip()
+        # Supporte les décimales avec virgule (ex. "300,50") lorsque le fichier vient d'Excel FR (;)
         if delimiter == ";" and "," in raw_cost and "." not in raw_cost:
             raw_cost = raw_cost.replace(",", ".")
 

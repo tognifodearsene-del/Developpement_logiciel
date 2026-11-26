@@ -1,4 +1,4 @@
-"""Stack analysis and recommendation report routes."""
+"""Routes de lancement d'analyse financière et de consultation des rapports ROI (/api/analysis)."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 
 
 def _serialize_report_summary(report: AnalysisReport) -> AnalysisReportSummary:
+    """Convertit un rapport ORM en résumé financier pour la liste d'historique."""
     return AnalysisReportSummary(
         id=report.id,
         total_current_annual_cost=report.total_current_annual_cost,
@@ -28,6 +29,7 @@ def _serialize_report_summary(report: AnalysisReport) -> AnalysisReportSummary:
 
 
 def _serialize_report_detail(report: AnalysisReport) -> AnalysisReportDetail:
+    """Assemble la vue détaillée d'un rapport et de ses recommandations ordonnées."""
     recs = [
         RecommendationResponse(
             id=rec.id,
@@ -67,7 +69,7 @@ def run_analysis(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AnalysisReportDetail:
-    """Analyze the current user's inventory and generate ROI recommendations."""
+    """Lance le moteur ROI sur le parc courant et enregistre un nouveau rapport d'analyse."""
     item_count = db.scalar(
         select(func.count(SoftwareItem.id)).where(SoftwareItem.user_id == current_user.id)
     ) or 0
@@ -78,6 +80,7 @@ def run_analysis(
         )
 
     report = generate_analysis_report(db, current_user)
+    # Précharge les relations (logiciel & alternative) en 2 requêtes pour éviter les requêtes N+1
     loaded = db.scalar(
         select(AnalysisReport)
         .options(
@@ -94,7 +97,7 @@ def list_reports(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[AnalysisReportSummary]:
-    """List generated reports for the current user."""
+    """Retourne l'historique des rapports générés par l'utilisateur (du plus récent au plus ancien)."""
     reports = list(
         db.scalars(
             select(AnalysisReport)
@@ -112,7 +115,7 @@ def get_report(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AnalysisReportDetail:
-    """Return full details of a generated report."""
+    """Récupère le détail complet d'un rapport appartenant à l'utilisateur connecté."""
     report = db.scalar(
         select(AnalysisReport)
         .options(

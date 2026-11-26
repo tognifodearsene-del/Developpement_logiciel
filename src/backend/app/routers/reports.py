@@ -1,4 +1,4 @@
-"""Report export routes (CSV and PDF)."""
+"""Routes d'export des rapports au format CSV ou PDF (/api/reports)."""
 
 from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -21,7 +21,7 @@ def export_report(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Response:
-    """Export an analysis report as CSV or PDF."""
+    """Télécharge un rapport d'analyse au format CSV ou PDF en pièce jointe HTTP."""
     report = db.scalar(
         select(AnalysisReport)
         .options(

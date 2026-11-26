@@ -1,4 +1,4 @@
-"""Application configuration loaded from environment variables."""
+"""Configuration centrale de l'application chargée depuis les variables d'environnement (.env)."""
 
 import os
 from dataclasses import dataclass
@@ -7,13 +7,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
+# Racine du dépôt (remonte de src/backend/app/config.py vers la racine)
 REPO_ROOT = Path(__file__).resolve().parents[3]
+# Base SQLite locale utilisée par défaut si PostgreSQL/Docker n'est pas démarré
 DEFAULT_SQLITE_PATH = Path(__file__).resolve().parents[1] / "optistack_dev.db"
 
+# Charge le fichier .env à la racine sans écraser les variables déjà définies dans l'OS
 load_dotenv(REPO_ROOT / ".env", override=False)
 
 
 def _as_bool(value: str | None, default: bool) -> bool:
+    """Convertit proprement une variable d'environnement texte en booléen."""
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
@@ -21,7 +25,7 @@ def _as_bool(value: str | None, default: bool) -> bool:
 
 @dataclass(frozen=True)
 class Settings:
-    """Runtime settings for OptiStack backend."""
+    """Paramètres d'exécution immuables pour le backend OptiStack."""
 
     app_name: str
     app_version: str
@@ -37,13 +41,13 @@ class Settings:
 
     @property
     def cors_origins(self) -> list[str]:
-        """Parse comma-separated CORS origins."""
+        """Découpe la liste des origines CORS autorisées (séparées par des virgules)."""
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Return cached settings instance."""
+    """Retourne une instance unique (mise en cache) de la configuration."""
     return Settings(
         app_name=os.getenv("APP_NAME", "OptiStack API"),
         app_version=os.getenv("APP_VERSION", "1.0.0"),

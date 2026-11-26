@@ -1,4 +1,4 @@
-"""Software inventory CRUD and CSV import routes."""
+"""Routes CRUD du parc logiciel et d'import CSV (/api/inventory)."""
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import select
@@ -22,6 +22,7 @@ router = APIRouter(prefix="/api/inventory", tags=["inventory"])
 
 
 def _serialize_item(item: SoftwareItem) -> SoftwareItemResponse:
+    """Enrichit un SoftwareItem ORM avec ses métriques annuelles et d'utilisation."""
     annual_cost, utilization_rate, is_underutilized = compute_item_metrics(
         item.monthly_cost_total, item.licenses_purchased, item.licenses_used
     )
@@ -42,6 +43,7 @@ def _serialize_item(item: SoftwareItem) -> SoftwareItemResponse:
 
 
 def _get_owned_item(db: Session, item_id: int, user_id: int) -> SoftwareItem:
+    """Vérifie qu'un logiciel existe et appartient bien à l'utilisateur connecté (isolation multi-tenant)."""
     item = db.scalar(
         select(SoftwareItem).where(SoftwareItem.id == item_id, SoftwareItem.user_id == user_id)
     )
@@ -55,7 +57,7 @@ def list_inventory(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> InventorySummary:
-    """List software inventory items and aggregate cost/utilization KPIs."""
+    """Liste le parc logiciel de l'utilisateur avec les indicateurs agrégés du tableau de bord."""
     rows = list(
         db.scalars(
             select(SoftwareItem)
@@ -88,7 +90,7 @@ def create_item(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> SoftwareItemResponse:
-    """Add a software license entry manually."""
+    """Ajoute manuellement un logiciel dans l'inventaire du client."""
     item = SoftwareItem(
         user_id=current_user.id,
         name=payload.name.strip(),
@@ -111,10 +113,11 @@ def update_item(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> SoftwareItemResponse:
-    """Update an existing software entry."""
+    """Met à jour partiellement un logiciel tout en recontrôlant la cohérence des licences."""
     item = _get_owned_item(db, item_id, current_user.id)
 
     updates = payload.model_dump(exclude_unset=True)
+    # Revalidation croisée nécessaire car la mise à jour peut ne modifier qu'un des deux compteurs
     new_purchased = updates.get("licenses_purchased", item.licenses_purchased)
     new_used = updates.get("licenses_used", item.licenses_used)
     if new_used > new_purchased:
@@ -137,7 +140,7 @@ def delete_item(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Response:
-    """Delete a software entry from inventory."""
+    """Supprime un logiciel du parc de l'utilisateur."""
     item = _get_owned_item(db, item_id, current_user.id)
     db.delete(item)
     db.commit()
@@ -150,7 +153,7 @@ async def import_csv(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> CsvImportResponse:
-    """Import software items from an uploaded CSV file."""
+    """Importe un fichier CSV : insère les lignes valides et remonte les erreurs ligne par ligne."""
     content = await file.read()
     parsed_items, errors = parse_inventory_csv(content)
 

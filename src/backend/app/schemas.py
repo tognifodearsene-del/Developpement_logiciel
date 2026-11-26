@@ -1,14 +1,16 @@
-"""Pydantic schemas for request validation and API responses."""
+"""Schémas Pydantic pour la validation des requêtes entrantes et la sérialisation JSON."""
 
 from datetime import datetime
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-# --- Auth & Users ---
+# --- Authentification & Utilisateurs ---
 
 
 class UserRegister(BaseModel):
+    """Données requises lors de l'inscription d'un nouveau compte client."""
+
     email: str = Field(min_length=5, max_length=255)
     password: str = Field(min_length=6, max_length=128)
     full_name: str = Field(min_length=2, max_length=120)
@@ -16,11 +18,15 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
+    """Identifiants attendus lors de la connexion."""
+
     email: str
     password: str
 
 
 class UserResponse(BaseModel):
+    """Représentation publique d'un utilisateur (sans hash de mot de passe)."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -32,15 +38,19 @@ class UserResponse(BaseModel):
 
 
 class TokenResponse(BaseModel):
+    """Réponse renvoyée après connexion ou inscription réussie."""
+
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
 
 
-# --- Inventory ---
+# --- Parc Logiciel (Inventaire) ---
 
 
 class SoftwareItemBase(BaseModel):
+    """Champs communs et règles de cohérence pour un logiciel du parc."""
+
     name: str = Field(min_length=1, max_length=120)
     category: str = Field(min_length=1, max_length=80)
     vendor: str = Field(default="", max_length=120)
@@ -50,16 +60,19 @@ class SoftwareItemBase(BaseModel):
 
     @model_validator(mode="after")
     def validate_license_usage(self) -> "SoftwareItemBase":
+        """Empêche d'enregistrer plus de licences actives que de licences achetées."""
         if self.licenses_used > self.licenses_purchased:
             raise ValueError("licenses_used cannot exceed licenses_purchased")
         return self
 
 
 class SoftwareItemCreate(SoftwareItemBase):
-    pass
+    """Payload de création manuelle ou via import CSV."""
 
 
 class SoftwareItemUpdate(BaseModel):
+    """Payload de mise à jour partielle d'un logiciel existant."""
+
     name: str | None = Field(default=None, min_length=1, max_length=120)
     category: str | None = Field(default=None, min_length=1, max_length=80)
     vendor: str | None = Field(default=None, max_length=120)
@@ -69,6 +82,8 @@ class SoftwareItemUpdate(BaseModel):
 
 
 class SoftwareItemResponse(SoftwareItemBase):
+    """Logiciel enrichi avec ses métriques calculées (coût annuel, taux d'usage)."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -80,6 +95,8 @@ class SoftwareItemResponse(SoftwareItemBase):
 
 
 class InventorySummary(BaseModel):
+    """Vue globale de l'inventaire et indicateurs clés agrégés."""
+
     items: list[SoftwareItemResponse]
     total_software_count: int
     total_monthly_cost: float
@@ -89,21 +106,27 @@ class InventorySummary(BaseModel):
 
 
 class CsvImportError(BaseModel):
+    """Erreur détaillée sur une ligne ignorée lors d'un import CSV."""
+
     line: int
     message: str
 
 
 class CsvImportResponse(BaseModel):
+    """Bilan d'un import CSV (nombre importé, ignoré, erreurs et éléments créés)."""
+
     imported_count: int
     skipped_count: int
     errors: list[CsvImportError]
     items: list[SoftwareItemResponse]
 
 
-# --- Alternatives ---
+# --- Catalogue d'Alternatives ---
 
 
 class AlternativeCreate(BaseModel):
+    """Payload d'ajout d'une alternative au catalogue (réservé aux admins)."""
+
     target_software: str = Field(min_length=1, max_length=120)
     category: str = Field(min_length=1, max_length=80)
     alternative_name: str = Field(min_length=1, max_length=120)
@@ -116,15 +139,19 @@ class AlternativeCreate(BaseModel):
 
 
 class AlternativeResponse(AlternativeCreate):
+    """Alternative exposée par l'API."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
 
 
-# --- Analysis & Reports ---
+# --- Analyse & Rapports ROI ---
 
 
 class RecommendationResponse(BaseModel):
+    """Détail d'une recommandation classée par priorité dans un rapport."""
+
     id: int
     priority_rank: int
     software_item_id: int
@@ -144,6 +171,8 @@ class RecommendationResponse(BaseModel):
 
 
 class AnalysisReportSummary(BaseModel):
+    """Résumé financier d'un rapport pour l'affichage en liste/historique."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -157,4 +186,6 @@ class AnalysisReportSummary(BaseModel):
 
 
 class AnalysisReportDetail(AnalysisReportSummary):
+    """Rapport complet incluant la liste ordonnée des recommandations."""
+
     recommendations: list[RecommendationResponse]

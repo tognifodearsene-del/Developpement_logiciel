@@ -1,3 +1,7 @@
+/**
+ * Onglet d'analyse : déclenchement du moteur ROI, historique des rapports,
+ * graphique comparatif Top 3 et boutons d'export CSV/PDF.
+ */
 export default function AnalysisSection({
   report,
   reportsList,
@@ -117,6 +121,7 @@ export default function AnalysisSection({
               </div>
             </div>
 
+            {/* Visualisation proportionnelle des 3 plus grosses économies annuelles */}
             {report.recommendations.length > 0 && (
               <div style={{ marginBottom: "1.5rem" }}>
                 <h3 className="card-title" style={{ marginBottom: "0.75rem" }}>

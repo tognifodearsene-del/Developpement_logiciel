@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+/**
+ * Écran d'authentification V1 permettant de basculer entre Connexion et Création de compte.
+ */
 export default function AuthView({ onAuthSuccess, api }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
