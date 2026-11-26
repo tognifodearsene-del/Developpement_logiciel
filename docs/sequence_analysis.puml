@@ -1,0 +1,42 @@
+@startuml
+title OptiStack V1 - Diagramme de Séquence (Import CSV, Analyse ROI & Export)
+
+actor "DSI / CTO" as Client
+participant "Frontend\nReact + Vite" as FE
+participant "API FastAPI\n(Routers)" as API
+participant "CsvParser" as CSV
+participant "RoiEngine" as ROI
+participant "ReportExporter" as EXP
+database "PostgreSQL / SQLite" as DB
+
+Client -> FE : Sélectionne fichier CSV (parc logiciel)
+FE -> API : POST /api/inventory/import-csv (JWT + CSV)
+API -> CSV : parse_inventory_csv(bytes)
+CSV --> API : items valides + erreurs par ligne
+API -> DB : INSERT software_items
+DB --> API : items enregistrés
+API --> FE : 200 OK (imported_count, skipped_count)
+FE --> Client : Affiche le parc et alertes < 70%
+
+Client -> FE : Clique sur "Lancer l'analyse ROI"
+FE -> API : POST /api/analysis/run (JWT)
+API -> ROI : generate_analysis_report(db, user)
+ROI -> DB : SELECT software_items & alternatives_catalog
+DB --> ROI : inventaire + catalogue
+ROI -> ROI : Calcule économies, ROI 12 mois, payback & Top 3
+ROI -> DB : INSERT analysis_reports & recommendations
+DB --> ROI : rapport persisté
+ROI --> API : AnalysisReport
+API --> FE : 201 Created (détail KPI + recommandations)
+FE --> Client : Affiche KPIs, barres comparatives & Top 3
+
+Client -> FE : Clique sur "Exporter PDF" ou "Exporter CSV"
+FE -> API : GET /api/reports/{id}/export?format=csv|pdf
+API -> DB : SELECT analysis_report + recommendations
+DB --> API : données du rapport
+API -> EXP : export_report_csv() / export_report_pdf()
+EXP --> API : flux binaire CSV ou PDF-1.4
+API --> FE : 200 OK (Content-Disposition: attachment)
+FE --> Client : Téléchargement du rapport
+
+@enduml

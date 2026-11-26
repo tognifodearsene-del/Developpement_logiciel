@@ -1,6 +1,6 @@
 # Architecture Technique & Spécifications V1 — OptiStack
 
-Ce document formalise l'architecture technique, le modèle de données, le contrat d'API, le format d'import CSV et les formules de calcul de ROI pour la **V1 (MVP)** d'OptiStack, en cohérence avec [use_cases.puml](use_cases.puml), [.env.example](../.env.example) et [docker-compose.yml](../docker-compose.yml).
+Ce document formalise l'architecture technique, le modèle de données, le contrat d'API, le format d'import CSV et les formules de calcul de ROI pour la **V1 (MVP)** d'OptiStack, en cohérence avec [use_cases.puml](use_cases.puml), [class_diagram.puml](class_diagram.puml), [sequence_analysis.puml](sequence_analysis.puml), [.env.example](../.env.example) et [docker-compose.yml](../docker-compose.yml).
 
 ---
 
@@ -33,7 +33,9 @@ flowchart LR
 ├── docs/
 │   ├── architecture.md          # Ce document
 │   ├── automatisation.md
+│   ├── class_diagram.puml       # Diagramme de classes UML
 │   ├── gantt_v1.md
+│   ├── sequence_analysis.puml   # Diagramme de séquence UML
 │   └── use_cases.puml
 └── src/
     ├── backend/

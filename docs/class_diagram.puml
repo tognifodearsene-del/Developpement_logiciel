@@ -1,0 +1,100 @@
+@startuml
+title OptiStack V1 - Diagramme de Classes (Modèles ORM & Services)
+
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "Modèles de données (ORM SQLAlchemy)" {
+  class User {
+    +id : int <<PK>>
+    +email : str <<UQ>>
+    +password_hash : str
+    +full_name : str
+    +company_name : str
+    +role : str = "client"
+    +created_at : datetime
+  }
+
+  class SoftwareItem {
+    +id : int <<PK>>
+    +user_id : int <<FK>>
+    +name : str
+    +category : str
+    +vendor : str
+    +licenses_purchased : int
+    +licenses_used : int
+    +monthly_cost_total : float
+    +created_at : datetime
+  }
+
+  class AlternativeCatalog {
+    +id : int <<PK>>
+    +target_software : str
+    +category : str
+    +alternative_name : str
+    +vendor_or_license : str
+    +is_open_source : bool
+    +estimated_monthly_cost_per_user : float
+    +estimated_migration_cost : float
+    +feature_match_score : int
+    +description : str
+  }
+
+  class AnalysisReport {
+    +id : int <<PK>>
+    +user_id : int <<FK>>
+    +total_current_annual_cost : float
+    +total_estimated_annual_savings : float
+    +total_migration_cost : float
+    +global_roi_percent : float?
+    +payback_months : float?
+    +created_at : datetime
+  }
+
+  class Recommendation {
+    +id : int <<PK>>
+    +report_id : int <<FK>>
+    +software_item_id : int <<FK>>
+    +alternative_id : int <<FK>>
+    +priority_rank : int
+    +current_annual_cost : float
+    +projected_annual_cost : float
+    +annual_savings : float
+    +migration_cost : float
+    +roi_percent : float?
+    +payback_months : float?
+    +rationale : str
+  }
+}
+
+package "Services métier (FastAPI)" {
+  class CsvParser <<service>> {
+    +parse_inventory_csv(content : bytes) : tuple
+  }
+
+  class RoiEngine <<service>> {
+    +UNDERUTILIZATION_THRESHOLD : float = 70.0
+    +compute_item_metrics(monthly_cost, purchased, used) : tuple
+    +compute_recommendation_metrics(item, alt) : ComputedRecommendation?
+    +generate_analysis_report(db, user) : AnalysisReport
+  }
+
+  class ReportExporter <<service>> {
+    +export_report_csv(report : AnalysisReport) : bytes
+    +export_report_pdf(report : AnalysisReport) : bytes
+  }
+}
+
+User "1" -- "0..*" SoftwareItem : possède >
+User "1" -- "0..*" AnalysisReport : génère >
+AnalysisReport "1" *-- "0..*" Recommendation : contient >
+SoftwareItem "1" -- "0..*" Recommendation : analysé par >
+AlternativeCatalog "1" -- "0..*" Recommendation : proposé dans >
+
+CsvParser ..> SoftwareItem : valide pour création
+RoiEngine ..> SoftwareItem : lit
+RoiEngine ..> AlternativeCatalog : consulte
+RoiEngine ..> AnalysisReport : produit
+ReportExporter ..> AnalysisReport : sérialise
+
+@enduml
